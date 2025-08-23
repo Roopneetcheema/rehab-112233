@@ -52,7 +52,6 @@
       "dest": "/public/dashboard.html"
     }
   ],
-  "functions": {},
   "cleanUrls": true,
   "trailingSlash": false
 }
