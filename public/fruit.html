@@ -1,0 +1,545 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Fruit Slice</title>
+    <style>
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+      body {
+        min-height: 100vh;
+        background: linear-gradient(135deg, #0f0f23 0%, #1a1a2e 100%);
+        color: white;
+        font-family: Arial, sans-serif;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        overflow: hidden;
+         font-family: Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+
+      }
+      .btn {
+        padding: 8px 16px;
+        border: none;
+        border-radius: 6px;
+        cursor: pointer;
+        font-weight: 600;
+      }
+     .btn-primary {
+  background: linear-gradient(90deg, #85c8ff, #d6fa61);
+  color: black;
+  transition: transform 0.2s ease, opacity 0.2s ease;
+}
+
+/* Hover effect */
+.btn-primary:hover {
+  opacity: 0.8;
+}
+
+/* Optional: Active (click) effect */
+.btn-primary:active {
+  transform: translateY(0);
+  opacity: 0.8;
+}
+
+      .btn-secondary {
+        background: #85c8ff;
+        color: black;
+      }
+      .btn-secondary:hover {
+        background: #85c8ff;
+      }
+
+      .game-container {
+         position: relative;
+  width: 70vw;
+  margin-left: 250px;
+  height: 80vh;
+  max-width: 1000px;
+  max-height: 750px;
+  border: 1px solid rgb(214, 250, 97,0.5);
+  border-radius: 20px;
+  overflow: hidden;
+  background: #1b2337;
+  box-shadow: 0 0 15px #3f452b, 
+              0 0 15px #d6fa61, 
+              0 0 15px oklch(93.063% 0.18089 121.276);
+      }
+      
+      @media (max-width: 768px) {
+        .game-container {
+          width: 95vw !important;
+          margin-left: 2.5vw !important;
+          height: 60vh !important;
+        }
+        
+        .hud {
+          position: fixed !important;
+          top: 10px !important;
+          left: 5px !important;
+          right: 5px !important;
+          width: auto !important;
+          padding: 12px !important;
+        }
+        
+        .hand-panel {
+          position: fixed !important;
+          bottom: 70px !important;
+          left: 5px !important;
+          right: 5px !important;
+          top: auto !important;
+          width: auto !important;
+          padding: 12px 16px !important;
+        }
+      }
+      #videoElement {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        transform: scaleX(-1);
+      }
+      #gameCanvas {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        pointer-events: none;
+      }
+     .handCursor {
+        position: absolute;
+        width: 44px;
+        height: 44px;
+        background: rgba(169, 250, 48, 0.4);
+        border-radius: 50%;
+        border: 3px solid rgba(150, 255, 102, 0.8);
+        box-shadow: 0 0 20px rgba(16, 185, 129, 0.4),
+          inset 0 0 20px rgba(16, 185, 129, 0.2);
+        pointer-events: none;
+        z-index: 30;
+        transition: transform 100ms, opacity 150ms;
+        opacity: 0;
+        transform: translate(-50%, -50%);
+      }
+    .hud{
+        position: fixed;
+         top: 55px;
+        left: 20px;
+        width: 260px;
+        z-index: 50;
+        background: rgba(17, 24, 39, 0.9);
+        backdrop-filter: blur(12px);
+        border-radius: 12px;
+        padding: 20px;
+         border: 1px solid #ff9cb3;
+        box-shadow: 0 0 30px rgba(249, 180, 232, 0.6);
+    
+    }
+      @keyframes glowPulse {
+  from {
+    box-shadow: 0 0 10px #596923, 0 0 20px #65713d, 0 0 30px #161345;
+  }
+  to {
+    box-shadow: 0 0 20px #424c21, 0 0 40px #2b350a, 0 0 60px #141143;
+  }
+}
+    </style>
+  </head>
+  <body>
+    <!-- HUD -->
+    <div class="hud"> 
+     
+      <div
+        style="
+          display: grid;
+          grid-template-columns: repeat(3, 1fr);
+          gap: 20px;
+          text-align: center;
+        "
+      >
+        <div>
+          <div
+            id="score"
+            style="font-size: 28px; font-weight: bold; color: #d6fa61"
+          >
+            0
+          </div>
+          <div style="font-size: 15px; color: #ebecee">Score</div>
+        </div>
+        <div>
+          <div
+            id="lives"
+            style="font-size: 28px; font-weight: bold; color: #ff9cb3"
+          >
+            5
+          </div>
+          <div style="font-size: 15px; color: #ebecee">Lives</div>
+        </div>
+        <div>
+          <div
+            id="level"
+            style="font-size: 28px; font-weight: bold; color:  #85c8ff"
+          >
+            1
+          </div>
+          <div style="font-size: 15px; color: #ebecee">Level</div>
+        </div>
+      </div>
+      <div
+        style="
+          margin-top: 12px;
+          text-align: center;
+          font-size: 14px;
+          color: #c4cad3;
+        "
+      >
+        Time: <span id="gameTime">0</span>s
+      </div>
+    </div>
+
+    <!-- Hand Indicator -->
+    <div
+      style="
+      position: fixed;
+        top: 200px;
+        left: 20px;
+        z-index: 50;
+        background: rgba(17, 24, 39, 0.95);
+        backdrop-filter: blur(12px);
+        border-radius: 16px;
+        padding: 20px 32px;
+        border: 1px solid rgb(133, 200, 255,0.5);
+        box-shadow: 0 0 20px rgb(133, 200, 255,0.5);
+        width: 260px;
+        text-align: center;
+      "
+    >
+      <div
+        style="
+          display: flex;
+          flex-direction: column;
+          align-items: center;
+          gap: 12px;
+        "
+      >
+        <div
+          id="handStatus"
+          style="
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            background: #ef4444;
+          "
+        ></div>
+        <div
+          id="handText"
+          style="font-size: 16px; color: #fca5a5; font-weight: 600"
+        >
+          No Hand Detected
+        </div>
+      </div>
+    </div>
+
+    <!-- Game -->
+    <div class="game-container">
+      <video id="videoElement" autoplay muted playsinline></video>
+      <canvas id="gameCanvas"></canvas>
+      <div id="handCursor1" class="handCursor"></div>
+      <div id="handCursor2" class="handCursor"></div>
+    </div>
+
+    <!-- Game Over --> 
+<div
+  id="gameOverScreen"
+  style="
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.9);
+    display: none;
+    align-items: center;
+    justify-content: center;
+    z-index: 60;
+  "
+>
+  <div
+    style="
+      background: #111827;
+      border-radius: 16px;
+      padding: 40px;
+      text-align: center;
+      max-width: 400px;
+      width: 90%;
+      border: 2px solid rgba(214, 250, 97, 0.3);
+      box-shadow: 0 0 25px rgba(214, 250, 97, 0.5);
+    "
+  >
+    <h2
+      id="gameOverTitle"
+      style="
+        font-size: 32px;
+        font-weight: bold;
+        color: #3b82f6;
+        margin-bottom: 30px;
+        animation: glowPulse 2s infinite alternate;
+      "
+    >
+      Game Over!
+    </h2>
+
+    <div
+      id="gameOverStats"
+      style="
+        color: #d1d5db;
+        margin-bottom: 30px;
+        font-size: 16px;
+        line-height: 1.6;
+      "
+    >
+      <p>Score: 6</p>
+      <p>Level: 2</p>
+      <p>Time: 21s</p>
+    </div>
+
+    <button
+      onclick="location.reload()"
+      style="
+        display: block;
+        width: 100%;
+        margin-bottom: 16px;
+        padding: 12px;
+        border: none;
+        border-radius: 8px;
+        font-weight: bold;
+        font-size: 16px;
+        color: #000;
+        cursor: pointer;
+        background: linear-gradient(to right, #85c8ff, #d6fa61);
+        transition: opacity 0.3s;
+      "
+      onmouseover="this.style.opacity=0.85"
+      onmouseout="this.style.opacity=1"
+    >
+      Play Again
+    </button>
+
+    <button
+      onclick="window.location.href = 'level1.html'"
+      style="
+        display: block;
+        width: 100%;
+        padding: 12px;
+        border: none;
+        border-radius: 8px;
+        font-weight: bold;
+        font-size: 16px;
+        color: #000;
+        cursor: pointer;
+        background: #85c8ff;
+        transition: opacity 0.3s;
+      "
+      onmouseover="this.style.opacity=0.85"
+      onmouseout="this.style.opacity=1"
+    >
+      ← Back
+    </button>
+  </div>
+</div>
+
+<!-- Glow animation -->
+<style>
+@keyframes glowPulse {
+  from {
+    text-shadow: 0 0 8px rgba(59, 130, 246, 0.7),
+                 0 0 16px rgba(59, 130, 246, 0.6);
+  }
+  to {
+    text-shadow: 0 0 16px rgba(59, 130, 246, 1),
+                 0 0 32px rgba(59, 130, 246, 0.8);
+  }
+}
+</style>
+
+
+    <!-- Instructions -->
+    <div
+      id="instructionsScreen"
+      style="
+        position: fixed;
+        inset: 0;
+        background: rgba(0, 0, 0, 0.95);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        z-index: 60;
+      "
+    >
+      <div
+        style="
+            background: #111827;
+        border-radius: 16px;
+        padding: 40px;
+        border: 2px solid rgb(214, 250, 97,0.3);
+        text-align: center;
+        max-width: 600px;
+         animation: glowPulse 2s infinite alternate;
+        "
+      >
+        <h2
+          style="
+            font-size: 36px;
+            font-weight: bold;
+            margin-bottom: 20px;
+            color: #efeff6;
+          "
+        >
+          Fruit Ninja 
+        </h2>
+        <p style="color: #d1d5db; margin-bottom: 30px">
+          Swipe your hands fast to slice fruits !<br /><br />
+          Don’t let them fall!<br /><br />
+            Hands must be above waist to start.
+          
+        </p>
+        <button
+          onclick="startGame()"
+          class="btn btn-primary"
+          style="margin-bottom: 16px; width: 100%"
+        >
+           Start Playing
+        </button>
+      
+      </div>
+    </div>
+
+  <!-- MediaPipe -->
+  <script src="https://cdn.jsdelivr.net/npm/@mediapipe/camera_utils/camera_utils.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@mediapipe/hands/hands.js"></script>
+
+  <script>
+    let gameRunning=false, gamePaused=false, score=0, lives=5, level=1, gameTime=0, objects=[];
+    let handsData = []; // stores detected hands
+    let gameTimer = null, gameStarted=false;
+
+    const canvas=document.getElementById('gameCanvas'); 
+    const ctx=canvas.getContext('2d');
+    const gameContainer=document.querySelector('.game-container');
+    const handCursor1=document.getElementById('handCursor1');
+    const handCursor2=document.getElementById('handCursor2');
+
+    const objectTypes=[
+      {emoji:'🍉', points:10, speed:8, color:'#ff6b35', size:70},
+      {emoji:'🍌', points:15, speed:8.1, color:'#ffd23f', size:75},
+      {emoji:'🍎', points:20, speed:8.2, color:'#ef4444', size:80},
+      {emoji:'🍇', points:25, speed:8.2, color:'#a663cc', size:85},
+      {emoji:'🍓', points:30, speed:8.3, color:'#e11d48', size:90},
+      {emoji:'💎', points:50, speed:8.5, color:'#06d6a0', size:70}
+    ];
+
+    function resizeCanvas(){const r=gameContainer.getBoundingClientRect(); canvas.width=r.width; canvas.height=r.height;}
+    window.addEventListener('resize',resizeCanvas);
+
+    function initMediaPipe(){
+      const hands = new Hands({locateFile:(f)=>`https://cdn.jsdelivr.net/npm/@mediapipe/hands/${f}`});
+      hands.setOptions({maxNumHands:2, modelComplexity:1, minDetectionConfidence:0.4, minTrackingConfidence:0.4});
+      hands.onResults(onResults);
+      const videoElement=document.getElementById('videoElement');
+      const camera=new Camera(videoElement,{onFrame:async()=>{if(videoElement.videoWidth>0)await hands.send({image:videoElement});},width:1280,height:720});
+      camera.start();
+    }
+
+    function onResults(res){
+      handsData = [];
+      const hs=document.getElementById('handStatus'); 
+      const ht=document.getElementById('handText');
+      if(res.multiHandLandmarks && res.multiHandLandmarks.length>0){
+        const rect=gameContainer.getBoundingClientRect();
+        res.multiHandLandmarks.forEach((lm,i)=>{
+          let minX=1,maxX=0,minY=1,maxY=0;
+          lm.forEach(l=>{minX=Math.min(minX,l.x);maxX=Math.max(maxX,l.x);minY=Math.min(minY,l.y);maxY=Math.max(maxY,l.y);});
+          const handX=(1-maxX + 1-minX)/2 * rect.width / 1; // mirrored
+          const handY=(minY + maxY)/2 * rect.height;
+          handsData.push({x:handX, y:handY});
+          const cursor = i===0 ? handCursor1 : handCursor2;
+          cursor.style.left = handX+'px'; cursor.style.top = handY+'px'; cursor.style.opacity='0.7';
+        });
+        if(gameStarted){
+          const aboveWaist = handsData.some(h=>h.y < canvas.height*0.66);
+          if(!aboveWaist){hs.style.background='#f59e0b'; 
+          ht.textContent='Move hand(s) above waist'; 
+          gameRunning = false;
+          return;}
+          else {hs.style.background='#10b981'; ht.textContent='Start Slicing'; 
+          if (!gameRunning) {
+            gameRunning = true;  // ← start the game loop
+            gameLoop();          // ← trigger the loop
+        }}
+        } else {
+          hs.style.background='#10b981'; ht.textContent='Hand(s) Detected';
+        }
+      } else {
+        handCursor1.style.opacity='0';
+        handCursor2.style.opacity='0';
+        hs.style.background='#ef4444'; ht.textContent='No Hand Detected';
+      }
+    }
+
+    function createObject(){const t=objectTypes[Math.floor(Math.random()*objectTypes.length)];
+      objects.push({x:Math.random()*(canvas.width-100)+50,y:canvas.height+50,type:t,size:t.size,caught:false,rotation:0,rotationSpeed:(Math.random()-0.5)*0.2});}
+
+    function updateObjects(){
+      for(let i=objects.length-1;i>=0;i--){
+        const o=objects[i]; o.y-=o.type.speed+(level*0.4); o.rotation+=o.rotationSpeed;
+        if(o.y<-100){lives--;updateLives(); if(lives<=0)gameOver(); objects.splice(i,1);}
+      }
+    }
+
+    function drawObjects(){ctx.clearRect(0,0,canvas.width,canvas.height); objects.forEach(o=>{ctx.save();ctx.translate(o.x,o.y);ctx.rotate(o.rotation);ctx.font=o.size+'px Arial';ctx.textAlign='center';ctx.textBaseline='middle';ctx.fillText(o.type.emoji,0,0);ctx.restore();});}
+
+    let prevHandPositions = [];
+    const sliceThreshold=50;
+    function detectSlice(){
+      if(handsData.length===0){prevHandPositions = handsData.map(h=>({x:h.x,y:h.y})); return;}
+      handsData.forEach((h,i)=>{
+        const prev = prevHandPositions[i] || {x:h.x, y:h.y};
+        const dx=h.x-prev.x, dy=h.y-prev.y, dist=Math.sqrt(dx*dx+dy*dy);
+        if(dist>sliceThreshold){
+          for(let j=objects.length-1;j>=0;j--){
+            const o=objects[j]; 
+            if(pointLineDistance(o.x,o.y,prev.x,prev.y,h.x,h.y)<o.size/1){
+              score+=o.type.points; updateScore(); createSliceEffect(o.x,o.y,o.type.color); objects.splice(j,1);
+            }
+          }
+        }
+      });
+      prevHandPositions = handsData.map(h=>({x:h.x,y:h.y}));
+    }
+
+    function pointLineDistance(px,py,x1,y1,x2,y2){const A=px-x1,B=py-y1,C=x2-x1,D=y2-y1;const dot=A*C+B*D,len=C*C+D*D;let param=-1;if(len!==0)param=dot/len;let xx,yy;if(param<0){xx=x1;yy=y1;}else if(param>1){xx=x2;yy=y2;}else{xx=x1+param*C;yy=y1+param*D;}const dx2=px-xx,dy2=py-yy;return Math.sqrt(dx2*dx2+dy2*dy2);}
+    function createSliceEffect(x,y,c){for(let i=0;i<15;i++){const p=document.createElement('div');p.style.position='absolute';p.style.left=x+'px';p.style.top=y+'px';p.style.width='10px';p.style.height='10px';p.style.background=c;p.style.borderRadius='50%';p.style.pointerEvents='none';p.style.zIndex='25';p.style.transform='translate(-50%,-50%)';const a=(i/15)*Math.PI*2,d=70+Math.random()*50;setTimeout(()=>{p.style.transform=`translate(${Math.cos(a)*d}px,${Math.sin(a)*d}px)`;p.style.opacity='0';p.style.transition='all 0.8s ease-out';},50);gameContainer.appendChild(p);setTimeout(()=>p.remove(),900);}}
+
+    function gameLoop(){if(!gameRunning||gamePaused)return; updateObjects(); detectSlice(); drawObjects(); if(Math.random()<0.06 +level * 0.01)createObject(); if(score>level*400){level++;updateLevel();} requestAnimationFrame(gameLoop);}
+    function updateScore(){document.getElementById('score').textContent=score;}
+    function updateLives(){document.getElementById('lives').textContent=lives;}
+    function updateLevel(){document.getElementById('level').textContent=level;}
+
+    function startGame(){
+      gameStarted=true;
+      document.getElementById('instructionsScreen').style.display='none';
+      gameRunning=false; gamePaused=false; score=0; lives=5; level=1; gameTime=0; objects=[]; updateScore(); updateLives(); updateLevel();
+      if(gameTimer) clearInterval(gameTimer);
+      gameTimer=setInterval(()=>{if(gameRunning&&!gamePaused){gameTime++;document.getElementById('gameTime').textContent=gameTime;}},1000);
+
+    }
+
+    function pauseGame(){if(!gameRunning)return; gamePaused=!gamePaused; document.getElementById('pauseBtn').textContent=gamePaused?'▶️ Resume':'⏸️ Pause'; if(!gamePaused)gameLoop();}
+    function gameOver(){gameRunning=false; document.getElementById('gameOverTitle').textContent='Game Over!'; document.getElementById('gameOverStats').innerHTML=`<div>Score: ${score}</div><div>Level: ${level}</div><div>Time: ${gameTime}s</div>`; document.getElementById('gameOverScreen').style.display='flex';}
+    function goBack(){alert('Back to menu')}
+
+    window.addEventListener('load',()=>{resizeCanvas();initMediaPipe();});
+  </script>
+  </body>
+</html>

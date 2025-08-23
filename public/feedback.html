@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Rehabify - Workout Feedback</title>
+  <link rel="stylesheet" href="style.css" />
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body class="min-h-screen bg-[#060e26] text-white p-4">
+  <!-- Mobile Navigation -->
+  <button class="mobile-nav-toggle" id="mobileNavToggle">
+    <span></span>
+    <span></span>
+    <span></span>
+  </button>
+  
+  <nav class="mobile-nav" id="mobileNav">
+    <a href="dashboard.html">🏠 Home</a>
+    <a href="level1.html">🏃 Level 1</a>
+    <a href="level2.html">💪 Level 2</a>
+    <a href="flappy.html">🐦 Flappy Game</a>
+    <a href="fruit.html">🍎 Fruit Game</a>
+    <a href="mole.html">🐭 Mole Game</a>
+    <a href="feedback.html">📊 Feedback</a>
+  </nav>
+  
+<div class="max-w-5xl mx-auto space-y-6">
+
+  <!-- HEADER -->
+  <header class="flex justify-between items-center border-b border-gray-700 pb-4">
+    <div>
+      <h1 class="text-3xl font-bold ">Rehabify</h1>
+      <p class="text-gray-400">Workout Complete - Your Feedback</p>
+    </div>
+  </header>
+
+  <main class="grid lg:grid-cols-2 gap-6">
+    <!-- LEFT: FEEDBACK -->
+    <form id="feedbackForm" class="space-y-6">
+      <div class="bg-[#172141] p-4 rounded-lg text-center">
+        <h2 class="text-xl font-bold mb-2">Congratulations!</h2>
+        <p class="text-gray-300">You’ve completed your rehabilitation session.</p>
+      </div>
+
+      <!-- FEELING + MOOD -->
+      <div class="bg-[#172141] p-4 rounded-lg">
+        <h3 class="font-semibold mb-3">How did you feel during this workout?</h3>
+        <div id="feelingButtons" class="flex flex-wrap gap-2">
+          <button type="button" data-feeling="Very Tired" class="mood-btn px-3 py-2 bg-gray-800 rounded-lg hover:bg-cyan-600">Very Tired</button>
+          <button type="button" data-feeling="Challenged" class="mood-btn px-3 py-2 bg-gray-800 rounded-lg hover:bg-cyan-600">Challenged</button>
+          <button type="button" data-feeling="Okay" class="mood-btn px-3 py-2 bg-gray-800 rounded-lg hover:bg-cyan-600">Okay</button>
+          <button type="button" data-feeling="Great" class="mood-btn px-3 py-2 bg-gray-800 rounded-lg hover:bg-cyan-600">Great</button>
+        </div>
+        <input type="hidden" name="feeling" id="selectedFeeling">
+      </div>
+
+      <!-- INTENSITY -->
+      <div class="text-[#b9d8c0] p-4 rounded-lg">
+        <h3 class="font-semibold mb-3">Workout intensity</h3>
+        <input type="range" id="intensity" name="intensity" min="1" max="10" value="5" class="w-full">
+        <div class="flex justify-between text-sm text-gray-400">
+          <span>Easy</span><span id="intensityValue">5</span><span>Hard</span>
+        </div>
+      </div>
+
+      <!-- ENJOYMENT -->
+      <div class="bg-[#172141] p-4 rounded-lg">
+        <h3 class="font-semibold mb-3">Enjoyment</h3>
+        <div id="stars" class="flex space-x-2 text-2xl cursor-pointer"></div>
+        <input type="hidden" name="enjoyment" id="enjoymentRating">
+      </div>
+
+      <!-- COMMENTS -->
+      <textarea name="comments" placeholder="Comments..." rows="3"
+        class="w-full p-3 bg-gray-800 rounded-lg text-white"></textarea>
+
+      <!-- ACTIONS -->
+      <div class="flex gap-4">
+        <button type="submit" class="flex-1 bg-cyan-600 py-2 rounded-lg">Submit</button>
+      
+      </div>
+    </form>
+
+    <!-- RIGHT: PROGRESS -->
+    <div class="space-y-6">
+      <div class="bg-[#172141] p-4 rounded-lg">
+        <h3 class="font-semibold mb-3">Weekly Progress</h3>
+        <canvas id="progressChart" height="250"></canvas>
+      </div>
+      <div class="grid grid-cols-3 gap-4">
+        <div class="bg-[#172141] p-4 rounded-lg text-center">
+          <div class="text-2xl font-bold text-[#b9d8c0]">7</div>
+          <div class="text-sm text-gray-400">Sessions</div>
+        </div>
+        <div class="bg-[#172141] p-4 rounded-lg text-center">
+          <div class="text-2xl font-bold text-[#b9d8c0]">98%</div>
+          <div class="text-sm text-gray-400">Accuracy</div>
+        </div>
+        <div class="bg-[#172141] p-4 rounded-lg text-center">
+          <div class="text-2xl font-bold text-[#b9d8c0]">4.2</div>
+          <div class="text-sm text-gray-400">Mood</div>
+        </div>
+      </div>
+    </div>
+  </main>
+</div>
+<script src="feedback.js"></script>
+
+<!-- Mobile Navigation Script -->
+<script>
+  document.addEventListener('DOMContentLoaded', function() {
+    const mobileNavToggle = document.getElementById('mobileNavToggle');
+    const mobileNav = document.getElementById('mobileNav');
+    
+    if (mobileNavToggle && mobileNav) {
+      mobileNavToggle.addEventListener('click', function() {
+        mobileNavToggle.classList.toggle('active');
+        mobileNav.classList.toggle('active');
+      });
+      
+      // Close nav when clicking on a link
+      mobileNav.addEventListener('click', function(e) {
+        if (e.target.tagName === 'A') {
+          mobileNavToggle.classList.remove('active');
+          mobileNav.classList.remove('active');
+        }
+      });
+      
+      // Close nav when clicking outside
+      document.addEventListener('click', function(e) {
+        if (!mobileNav.contains(e.target) && !mobileNavToggle.contains(e.target)) {
+          mobileNavToggle.classList.remove('active');
+          mobileNav.classList.remove('active');
+        }
+      });
+    }
+  });
+</script>
+
+</body>
+</html>
+

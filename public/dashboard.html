@@ -1,0 +1,208 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Rehabify - Dashboard</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body class="min-h-screen bg-gradient-to-br from-primary to-secondary text-text">
+  <!-- Mobile Navigation -->
+  <button class="mobile-nav-toggle" id="mobileNavToggle">
+    <span></span>
+    <span></span>
+    <span></span>
+  </button>
+  
+  <nav class="mobile-nav" id="mobileNav">
+    <a href="dashboard.html">🏠 Home</a>
+    <a href="level1.html">🏃 Level 1</a>
+    <a href="level2.html">💪 Level 2</a>
+    <a href="flappy.html">🐦 Flappy Game</a>
+    <a href="fruit.html">🍎 Fruit Game</a>
+    <a href="mole.html">🐭 Mole Game</a>
+    <a href="feedback.html">📊 Feedback</a>
+  </nav>
+  
+  <div class="animate-fade-in max-w-6xl mx-auto p-4">
+    <!-- Header -->
+    <header class="flex flex-col items-center justify-center p-6 mb-8 text-center">
+      <h1 class="text-4xl font-bold mb-4">🏃 Rehabify</h1>
+      <p class="text-xl text-gray-300 max-w-2xl">
+        Gamified Rehabilitation Therapy - Transform your recovery journey with interactive exercises and engaging mini-games.
+      </p>
+    </header>
+
+    <!-- Main Dashboard Grid -->
+    <main class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+      
+      <!-- Exercise Levels Section -->
+      <div class="lg:col-span-3">
+        <h2 class="text-2xl font-bold mb-4 text-center">Exercise Levels</h2>
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+          
+          <!-- Level 1 -->
+          <div class="card hover:bg-gray-700 transition-all duration-300 cursor-pointer" onclick="window.location.href='level1.html'">
+            <div class="flex items-center gap-4 mb-4">
+              <div class="text-4xl">🏃</div>
+              <div>
+                <h3 class="text-xl font-semibold">Level 1 - Upper Body</h3>
+                <p class="text-gray-400 text-sm">Shoulder & Arm Exercises</p>
+              </div>
+            </div>
+            <p class="text-gray-300 mb-4">
+              Start your rehabilitation journey with gentle upper body movements including shoulder abduction, front reach, and overhead press exercises.
+            </p>
+            <div class="flex justify-between items-center">
+              <span class="px-3 py-1 bg-green-600 rounded-full text-xs">Beginner</span>
+              <button class="btn btn-primary">Start Level 1</button>
+            </div>
+          </div>
+
+          <!-- Level 2 -->
+          <div class="card hover:bg-gray-700 transition-all duration-300 cursor-pointer" onclick="window.location.href='level2.html'">
+            <div class="flex items-center gap-4 mb-4">
+              <div class="text-4xl">💪</div>
+              <div>
+                <h3 class="text-xl font-semibold">Level 2 - Lower Body</h3>
+                <p class="text-gray-400 text-sm">Leg & Core Exercises</p>
+              </div>
+            </div>
+            <p class="text-gray-300 mb-4">
+              Progress to lower body strengthening with mini squats, marching in place, and leg raises to build core stability and leg strength.
+            </p>
+            <div class="flex justify-between items-center">
+              <span class="px-3 py-1 bg-yellow-600 rounded-full text-xs">Intermediate</span>
+              <button class="btn btn-primary">Start Level 2</button>
+            </div>
+          </div>
+
+        </div>
+      </div>
+
+      <!-- Mini Games Section -->
+      <div class="lg:col-span-3">
+        <h2 class="text-2xl font-bold mb-4 text-center">Mini Games</h2>
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+          
+          <!-- Flappy Game -->
+          <div class="card hover:bg-gray-700 transition-all duration-300 cursor-pointer" onclick="window.location.href='flappy.html'">
+            <div class="text-center mb-4">
+              <div class="text-4xl mb-2">🐦</div>
+              <h3 class="text-lg font-semibold">Flappy Bird</h3>
+            </div>
+            <p class="text-gray-300 text-sm mb-4 text-center">
+              Control a bird with hand movements. Raise your hand to fly up, lower to go down. Perfect for arm mobility training.
+            </p>
+            <button class="btn btn-secondary w-full">Play Game</button>
+          </div>
+
+          <!-- Fruit Game -->
+          <div class="card hover:bg-gray-700 transition-all duration-300 cursor-pointer" onclick="window.location.href='fruit.html'">
+            <div class="text-center mb-4">
+              <div class="text-4xl mb-2">🍎</div>
+              <h3 class="text-lg font-semibold">Fruit Ninja</h3>
+            </div>
+            <p class="text-gray-300 text-sm mb-4 text-center">
+              Slice fruits with fast hand movements. Great for improving hand-eye coordination and reaction time.
+            </p>
+            <button class="btn btn-secondary w-full">Play Game</button>
+          </div>
+
+          <!-- Mole Game -->
+          <div class="card hover:bg-gray-700 transition-all duration-300 cursor-pointer" onclick="window.location.href='mole.html'">
+            <div class="text-center mb-4">
+              <div class="text-4xl mb-2">🐭</div>
+              <h3 class="text-lg font-semibold">Stomp the Mole</h3>
+            </div>
+            <p class="text-gray-300 text-sm mb-4 text-center">
+              Stomp moles with your feet movements. Excellent for balance training and lower body coordination.
+            </p>
+            <button class="btn btn-secondary w-full">Play Game</button>
+          </div>
+
+        </div>
+      </div>
+
+      <!-- Progress and Feedback -->
+      <div class="lg:col-span-3">
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+          
+          <!-- Progress Overview -->
+          <div class="card">
+            <h3 class="text-xl font-semibold mb-4">Progress Overview</h3>
+            <div class="grid grid-cols-3 gap-4 text-center">
+              <div>
+                <div class="text-2xl font-bold text-accent">7</div>
+                <div class="text-sm text-gray-400">Sessions</div>
+              </div>
+              <div>
+                <div class="text-2xl font-bold text-green-400">98%</div>
+                <div class="text-sm text-gray-400">Accuracy</div>
+              </div>
+              <div>
+                <div class="text-2xl font-bold text-yellow-400">4.2</div>
+                <div class="text-sm text-gray-400">Avg Rating</div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Quick Actions -->
+          <div class="card">
+            <h3 class="text-xl font-semibold mb-4">Quick Actions</h3>
+            <div class="space-y-3">
+              <button onclick="window.location.href='feedback.html'" class="btn btn-secondary w-full">
+                📊 View Feedback
+              </button>
+              <button onclick="window.location.href='level1.html'" class="btn btn-primary w-full">
+                🏃 Quick Start Exercise
+              </button>
+            </div>
+          </div>
+
+        </div>
+      </div>
+
+    </main>
+
+    <!-- Footer -->
+    <footer class="p-6 border-t border-gray-700 mt-8 text-center text-gray-400">
+      <p class="text-sm">
+        Rehabify - Making rehabilitation engaging and effective through gamification
+      </p>
+    </footer>
+  </div>
+
+  <!-- Mobile Navigation Script -->
+  <script>
+    document.addEventListener('DOMContentLoaded', function() {
+      const mobileNavToggle = document.getElementById('mobileNavToggle');
+      const mobileNav = document.getElementById('mobileNav');
+      
+      if (mobileNavToggle && mobileNav) {
+        mobileNavToggle.addEventListener('click', function() {
+          mobileNavToggle.classList.toggle('active');
+          mobileNav.classList.toggle('active');
+        });
+        
+        // Close nav when clicking on a link
+        mobileNav.addEventListener('click', function(e) {
+          if (e.target.tagName === 'A') {
+            mobileNavToggle.classList.remove('active');
+            mobileNav.classList.remove('active');
+          }
+        });
+        
+        // Close nav when clicking outside
+        document.addEventListener('click', function(e) {
+          if (!mobileNav.contains(e.target) && !mobileNavToggle.contains(e.target)) {
+            mobileNavToggle.classList.remove('active');
+            mobileNav.classList.remove('active');
+          }
+        });
+      }
+    });
+  </script>
+
+</body>
+</html>

@@ -1,0 +1,348 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Stomp the Mole</title>
+    <style>
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+        font-family: Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+      }
+      body {
+        min-height: 100vh;
+        overflow: hidden;
+        background: linear-gradient(135deg, #0f0f23, #1a1a2e);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: #fff;
+        
+      }
+      .game-container {
+        position: relative;
+        width: 80vw;
+        height: 80vh;
+        max-width: 1000px;
+        max-height: 720px;
+       border: 1px solid rgb(214, 250, 97,0.5);
+        border-radius: 20px;
+        overflow: hidden;
+        background: #1b2337;
+  box-shadow: 0 0 15px #3f452b, 
+              0 0 15px #d6fa61, 
+              0 0 15px #d6fa61;
+      }
+      
+      @media (max-width: 768px) {
+        .game-container {
+          width: 95vw !important;
+          height: 60vh !important;
+        }
+        
+        #hud {
+          position: fixed !important;
+          top: 10px !important;
+          left: 5px !important;
+          right: 5px !important;
+          width: auto !important;
+          padding: 12px !important;
+        }
+      }
+      #videoElement {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        transform: scaleX(-1);
+      }
+      #gameCanvas {
+        position: absolute;
+        inset: 0;
+        pointer-events: none;
+      }
+      #hud {
+        /* //green - #d6fa61   pink  - #ff9cb3   blue - #85c8ff */
+        position: absolute;
+        top: 16px;
+        left: 16px;
+        z-index: 10;
+        background: rgba(0, 0, 0, 0.6);
+        padding: 12px 16px;
+        border-radius: 12px;
+        border: 2px solid  #85c8ff ;
+        font-weight: 600;
+         box-shadow: 0 0 15px #2f2a63, 
+              0 0 15px #0f1248, 
+              0 0 15px #61b3fa;
+      }
+      #hud .val {
+        color:  #85c8ff ;
+        font-weight: 800;
+      }  #gameOver {
+    position: absolute;
+    inset: 0;
+    display: none;
+    align-items: center;
+    justify-content: center;
+    z-index: 20;
+    background: rgba(0, 0, 0, 0.9);
+  }
+
+  /* Card */
+  #gameOver {
+    position: absolute;
+    inset: 0;
+    display: none;
+    align-items: center;
+    justify-content: center;
+    z-index: 20;
+    background: rgba(0, 0, 0, 0.92);
+  }
+
+  /* Card */
+  #gameOverCard {
+    background: #1f2937; /* dark grey */
+    border: 2px solid #85c8ff; /* blue highlight */
+    border-radius: 16px;
+    padding: 28px;
+    text-align: center;
+    width: min(92vw, 440px);
+    box-shadow: 0 0 25px rgba(133, 200, 255, 0.5);
+  }
+
+  /* Title */
+  #gameOverCard h2 {
+    font-size: 28px;
+    font-weight: bold;
+    color: #fafafa; /* blue */
+    margin-bottom: 14px;
+    
+  }
+
+  /* New high score */
+  #gameOverCard .new-high {
+    color: #ebe6e7; /* pink */
+    font-weight: 700;
+    font-size: 20px;
+    margin-bottom: 12px;
+   
+  }
+
+  /* Stats */
+  #finalStats {
+    color: #d1d5db;
+    margin: 10px 0 18px;
+    font-size: 15px;
+    line-height: 1.6;
+  }
+
+  /* Buttons */
+  .btn-primary {
+    background: linear-gradient(to right, #85c8ff, #d6fa61); /* blue → green */
+    border: none;
+    border-radius: 8px;
+    padding: 12px 20px;
+    font-size: 16px;
+    font-weight: bold;
+    cursor: pointer;
+    color: #000;
+    transition: opacity 0.3s, transform 0.2s;
+    width: 100%;
+    box-shadow: 0 0 10px rgba(133, 200, 255, 0.6);
+  }
+  .btn-primary-b {
+    background: #85c8ff;
+    border: none;
+    border-radius: 8px;
+    padding: 12px 20px;
+    font-size: 16px;
+    font-weight: bold;
+    cursor: pointer;
+    color: #000;
+    transition: opacity 0.3s, transform 0.2s;
+    width: 100%;
+    box-shadow: 0 0 10px rgba(133, 200, 255, 0.6);
+  }
+  .btn-primary:hover {
+    opacity: 0.9;
+    transform: scale(1.02);
+  }
+    </style>
+  </head>
+  <body>
+    <div class="game-container">
+      <video id="videoElement" autoplay muted playsinline></video>
+      <canvas id="gameCanvas"></canvas>
+      <div id="hud">
+        Score: <span id="score" class="val">0</span> | Time:
+        <span id="time" class="val">0</span>s
+      </div>
+<div id="gameOver">
+  <div id="gameOverCard">
+    <h2>Game Over</h2>
+    <div class="new-high">Great work!</div>
+    <div id="finalStats">
+      <p>Score: 12</p>
+      <p>Level: 3</p>
+      <p>Time: 35s</p>
+    </div>
+    <button
+      class="btn-primary"
+      onclick="location.reload()"
+    >
+      Play again
+    </button>
+    <br><br>
+    <button
+      class="btn-primary-b"
+      onclick="window.location.href = 'level1.html'"
+    >
+     ← Back
+    </button>
+  </div>
+</div>
+    </div>
+
+  <!-- MediaPipe -->
+  <script src="https://cdn.jsdelivr.net/npm/@mediapipe/camera_utils/camera_utils.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@mediapipe/pose/pose.js"></script>
+
+  <script>
+    const video=document.getElementById('videoElement');
+    const canvas=document.getElementById('gameCanvas');
+    const ctx=canvas.getContext('2d');
+    const container=document.querySelector('.game-container');
+    const scoreEl=document.getElementById('score');
+    const timeEl=document.getElementById('time');
+
+    let score=0,timeSec=0,gameRunning=false;
+    let moles=[],spawnTimer=null,secondTimer=null;
+    const MOLE_SIZE=90,MOLE_LIFETIME_MS=4500,SPAWN_INTERVAL_MS=1200; // faster spawn
+    let lastFootX=null;
+    let feet=[]; // current feet positions
+    let prevFeet=[]; // previous frame feet positions
+    const STOMP_THRESHOLD=10; // px/frame downward speed needed for stomp
+    let highScore=0;
+
+    function resizeCanvas(){canvas.width=container.clientWidth;canvas.height=container.clientHeight;}
+    window.addEventListener('resize',resizeCanvas);
+
+    // Pose setup
+    function initPose(){
+      const pose=new Pose({locateFile:f=>`https://cdn.jsdelivr.net/npm/@mediapipe/pose/${f}`});
+      pose.setOptions({modelComplexity:1,smoothLandmarks:true,selfieMode:true,minDetectionConfidence:0.5,minTrackingConfidence:0.5});
+      pose.onResults(onResults);
+      const cam=new Camera(video,{onFrame:async()=>{if(video.videoWidth>0)await pose.send({image:video});},width:1280,height:720});
+      cam.start();
+    }
+
+    function onResults(results){
+      if(!gameRunning) return;
+      if(!(results.poseLandmarks&&results.poseLandmarks.length>=33)) return;
+
+      const w=canvas.width,h=canvas.height;
+      const L_FOOT=results.poseLandmarks[31]||results.poseLandmarks[27];
+      const R_FOOT=results.poseLandmarks[32]||results.poseLandmarks[28];
+      if(!L_FOOT||!R_FOOT) return;
+
+      prevFeet=feet.map(f=>({...f})); // save last frame
+      feet=[
+        {x:L_FOOT.x*w,y:L_FOOT.y*h},
+        {x:R_FOOT.x*w,y:R_FOOT.y*h}
+      ];
+
+      lastFootX=(feet[0].x+feet[1].x)/2;
+
+      // check stomp hits
+      feet.forEach((f,i)=>{
+        if(prevFeet[i]) {
+          let vy=f.y-prevFeet[i].y; // downward speed
+          if(vy>STOMP_THRESHOLD) checkHit(f.x,f.y); 
+        }
+      });
+    }
+
+    function checkHit(x,y){
+      for(const m of moles){
+        if(!m.alive) continue;
+        const dx=x-m.x,dy=y-m.y,dist=Math.hypot(dx,dy);
+        if(dist<MOLE_SIZE*0.7){
+          m.alive=false;
+          score+=10;
+          scoreEl.textContent=score;
+        }
+      }
+    }
+
+    function spawnMole(){
+      if(!gameRunning) return;
+      const w=canvas.width,h=canvas.height;
+      let x;
+      if(lastFootX!=null){
+        const spread=Math.max(120,w*0.2);
+        x=Math.min(Math.max(lastFootX+(Math.random()*2-1)*spread,MOLE_SIZE/2+10),w-MOLE_SIZE/2-10);
+      }else{
+        x=Math.random()*(w-MOLE_SIZE-20)+(MOLE_SIZE/2+10);
+      }
+      const y=h-70;
+      const m={x,y,size:MOLE_SIZE,born:performance.now(),alive:true};
+      moles.push(m);
+      setTimeout(()=>{m.alive=false;},MOLE_LIFETIME_MS);
+    }
+
+    function draw(){
+      ctx.clearRect(0,0,canvas.width,canvas.height);
+      for(const m of moles){
+        if(!m.alive) continue;
+        ctx.beginPath();
+        ctx.arc(m.x,m.y,m.size/2,0,Math.PI*2);
+        ctx.fillStyle='#8b5e3c';ctx.fill();
+        ctx.fillStyle='#000';
+        ctx.beginPath();ctx.arc(m.x-m.size*0.15,m.y-8,5,0,Math.PI*2);ctx.fill();
+        ctx.beginPath();ctx.arc(m.x+m.size*0.15,m.y-8,5,0,Math.PI*2);ctx.fill();
+        ctx.fillStyle='#fbbf24';ctx.beginPath();ctx.arc(m.x,m.y+6,7,0,Math.PI*2);ctx.fill();
+      }
+      // draw feet markers
+      ctx.fillStyle="yellow";
+      feet.forEach(f=>{
+        ctx.beginPath();
+        ctx.arc(f.x,f.y,15,0,Math.PI*2);
+        ctx.fill();
+      });
+      if(gameRunning) requestAnimationFrame(draw);
+    }
+
+    function startGame(){
+      score=0;timeSec=0;moles=[];lastFootX=null;feet=[];prevFeet=[];
+      scoreEl.textContent=0;timeEl.textContent=0;
+      document.getElementById('gameOver').style.display='none';
+      gameRunning=true;
+      if(spawnTimer) clearInterval(spawnTimer);
+      if(secondTimer) clearInterval(secondTimer);
+      spawnTimer=setInterval(spawnMole,SPAWN_INTERVAL_MS);
+      secondTimer=setInterval(()=>{if(!gameRunning)return;timeSec++;timeEl.textContent=timeSec;if(timeSec>=60)endGame();},1000);
+      spawnMole();
+      requestAnimationFrame(draw);
+    }
+
+    function endGame(){
+      gameRunning=false;
+      if(spawnTimer) clearInterval(spawnTimer);
+      if(secondTimer) clearInterval(secondTimer);
+
+      let statsEl=document.getElementById('finalStats');
+      if(score>highScore){
+        highScore=score;
+        statsEl.innerHTML=`<div class="new-high">🎉 New High Score!</div><div>Score: ${score}</div><div>Time: ${timeSec}s</div>`;
+      }else{
+        statsEl.innerHTML=`<div>Your Score: ${score}</div><div>High Score: ${highScore}</div><div>Time: ${timeSec}s</div>`;
+      }
+      document.getElementById('gameOver').style.display='flex';
+    }
+
+    window.addEventListener('load',()=>{resizeCanvas();initPose();video.addEventListener('loadedmetadata',resizeCanvas,{once:true});startGame();});
+  </script>
+  </body>
+</html>

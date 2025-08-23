@@ -1,0 +1,723 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Leg Raises - Rehabify</title>
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🦵</text></svg>" />
+  
+  <!-- MediaPipe (camera helper + pose) -->
+  <script src="https://cdn.jsdelivr.net/npm/@mediapipe/camera_utils/camera_utils.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@mediapipe/pose/pose.js"></script>
+  
+  <style>
+    /* Minimalist CSS with custom color scheme */
+    * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+    }
+
+    :root {
+        --primary: #172141;
+        --secondary: #060e26;
+        --text: #b9d8c0;
+        --accent: #7ee1ff;
+    }
+
+    body {
+        font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+        background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
+        color: var(--text);
+        min-height: 100vh;
+        line-height: 1.6;
+        overflow: hidden;
+    }
+    #instructionOverlay {
+  transition: opacity 0.5s ease;
+}
+#instructionOverlay.hidden {
+  opacity: 0;
+  pointer-events: none;
+}
+
+
+    h1, h2, h3, h4, h5, h6 {
+        font-weight: 600;
+        color: var(--text);
+        margin-bottom: 0.5rem;
+    }
+
+    /* Utility Classes */
+    .flex { display: flex; }
+    .flex-col { flex-direction: column; }
+    .items-center { align-items: center; }
+    .justify-center { justify-content: center; }
+    .justify-between { justify-content: space-between; }
+    .gap-4 { gap: 1rem; }
+    .gap-6 { gap: 1.5rem; }
+    .p-4 { padding: 1rem; }
+    .p-6 { padding: 1.5rem; }
+    .px-3 { padding-left: 0.75rem; padding-right: 0.75rem; }
+    .px-8 { padding-left: 2rem; padding-right: 2rem; }
+    .py-1 { padding-top: 0.25rem; padding-bottom: 0.25rem; }
+    .py-3 { padding-top: 0.75rem; padding-bottom: 0.75rem; }
+    .mt-4 { margin-top: 1rem; }
+    .mt-8 { margin-top: 2rem; }
+    .mb-2 { margin-bottom: 0.5rem; }
+    .mb-6 { margin-bottom: 1.5rem; }
+    .mx-auto { margin-left: auto; margin-right: auto; }
+    .w-full { width: 100%; }
+    .h-full { height: 100%; }
+    .max-w-4xl { max-width: 56rem; }
+    .min-h-96 { min-height: 24rem; }
+    .text-xs { font-size: 0.75rem; }
+    .text-sm { font-size: 0.875rem; }
+    .text-lg { font-size: 1.125rem; }
+    .text-3xl { font-size: 1.875rem; }
+    .text-4xl { font-size: 2.25rem; }
+    .font-bold { font-weight: 700; }
+    .font-semibold { font-weight: 600; }
+    .text-center { text-align: center; }
+    .text-right { text-align: right; }
+    .rounded-2xl { border-radius: 1rem; }
+    .rounded-full { border-radius: 9999px; }
+    .relative { position: relative; }
+    .absolute { position: absolute; }
+    .inset-0 { top: 0; right: 0; bottom: 0; left: 0; }
+    .object-cover { object-fit: cover; }
+    .overflow-hidden { overflow: hidden; }
+    .grid { display: grid; }
+    .grid-cols-1 { grid-template-columns: repeat(1, minmax(0, 1fr)); }
+    .grid-cols-3 { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+    .space-y-4 > * + * { margin-top: 1rem; }
+
+    @media (min-width: 1024px) {
+        .lg\:grid-cols-4 { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+        .lg\:col-span-3 { grid-column: span 3 / span 3; }
+    }
+
+    /* Colors */
+    .bg-gray-900 { background-color: rgba(17, 24, 39, 1); }
+    .bg-gray-800 { background-color: rgba(31, 41, 55, 1); }
+    .text-gray-300 { color: rgba(209, 213, 219, 1); }
+    .text-gray-400 { color: rgba(156, 163, 175, 1); }
+    .border-gray-700 { border-color: rgba(55, 65, 81, 1); }
+    .border-b { border-bottom-width: 1px; }
+    .border-t { border-top-width: 1px; }
+
+    /* Component Classes */
+    .btn {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 0.5rem;
+        padding: 0.75rem 1.5rem;
+        border-radius: 0.5rem;
+        font-weight: 500;
+        transition: all 0.2s;
+        cursor: pointer;
+        border: none;
+        text-decoration: none;
+    }
+
+    .btn-primary {
+        background-color: #67e8f9;
+        color: var(--primary);
+    }
+
+    .btn-primary:hover {
+        background-color: #a7f3d0;
+        transform: scale(1.05);
+    }
+
+    .btn-secondary {
+        background-color: rgba(55, 65, 81, 0.5);
+        color: var(--text);
+        border: 1px solid rgba(185, 216, 192, 0.2);
+    }
+
+    .btn-secondary:hover {
+        background-color: rgba(75, 85, 99, 0.5);
+        border-color: rgba(185, 216, 192, 0.3);
+    }
+
+    .card {
+        background-color: rgba(55, 65, 81, 0.3);
+        backdrop-filter: blur(10px);
+        border: 1px solid rgba(185, 216, 192, 0.1);
+        border-radius: 1rem;
+        padding: 1.5rem;
+        transition: all 0.2s;
+    }
+
+    .card:hover {
+        background-color: rgba(55, 65, 81, 0.4);
+    }
+
+    /* Video and Canvas */
+    #video {
+        width: 100%;
+        height: auto;
+        max-width: 800px;
+        max-height: 600px;
+        display: block;
+    }
+
+    #overlay {
+        pointer-events: none;
+        z-index: 10;
+    }
+
+    /* Live Feedback */
+    .live-feedback-container {
+        min-height: 3rem;
+        padding: 0.75rem;
+        border-radius: 0.5rem;
+        background-color: rgba(55, 65, 81, 0.2);
+        border: 1px solid rgba(185, 216, 192, 0.1);
+        transition: all 0.3s ease;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        text-align: center;
+    }
+
+    .live-feedback-container.correction {
+        background-color: rgba(239, 68, 68, 0.2);
+        border-color: rgba(239, 68, 68, 0.3);
+        color: #fca5a5;
+    }
+
+    .live-feedback-container.success {
+        background-color: rgba(34, 197, 94, 0.2);
+        border-color: rgba(34, 197, 94, 0.3);
+        color: #86efac;
+    }
+
+    .live-feedback-container.warning {
+        background-color: rgba(245, 158, 11, 0.2);
+        border-color: rgba(245, 158, 11, 0.3);
+        color: #fde047;
+    }
+
+    /* Toast/Coach Box */
+    .toast {
+        background: linear-gradient(135deg, #67e8f9 0%, #7ee1ff 100%);
+        color: var(--primary);
+        padding: 15px;
+        border-radius: 15px;
+        margin-bottom: 15px;
+        font-weight: 600;
+        font-size: 1.1rem;
+        box-shadow: 0 4px 15px rgba(103, 232, 249, 0.3);
+        text-align: center;
+    }
+
+    /* Level Tag */
+    .level-tag {
+        background-color: rgba(55, 65, 81, 0.8);
+        border: 1px solid rgba(185, 216, 192, 0.2);
+    }
+
+    /* Mascot */
+    .mascot-card {
+        text-align: center;
+        padding: 1rem;
+    }
+
+    .mascot-emoji {
+        font-size: 2rem;
+        margin-bottom: 0.5rem;
+        transition: transform 0.2s ease;
+    }
+
+    .mascot-label {
+        font-size: 0.875rem;
+        color: var(--text);
+    }
+
+    /* Animation */
+    .animate-fade-in {
+        animation: fadeIn 0.5s ease-in;
+    }
+
+    @keyframes fadeIn {
+        from { opacity: 0; transform: translateY(10px); }
+        to { opacity: 1; transform: translateY(0); }
+    }
+
+    /* Responsive */
+    @media (max-width: 768px) {
+        .grid { grid-template-columns: 1fr; }
+        .lg\:col-span-3 { grid-column: span 1; }
+        .text-4xl { font-size: 1.5rem; }
+        .p-6 { padding: 1rem; }
+    }
+  </style>
+</head>
+
+<body class="min-h-screen bg-gradient-to-br from-primary to-secondary text-text">
+  <div class="animate-fade-in max-w-4xl mx-auto p-4">
+
+    <header class="flex justify-between items-start p-6 border-b border-gray-700 mb-6">
+      <div class="flex flex-col">
+        <h1 class="text-4xl font-bold mb-2">🦵 Leg Raises</h1>
+        <div class="text-lg text-gray-300">Strengthen Your Core & Legs</div>
+      </div>
+      <div class="text-right">
+        <span id="levelTag" class="px-3 py-1 bg-gray-800 rounded-full text-sm level-tag">• Lower Body</span>
+        <div class="text-xs text-gray-400 mt-1">Press Start to begin</div>
+      </div>
+    </header>
+
+    <main class="grid grid-cols-1 lg:grid-cols-4 gap-6">
+      <!-- Video + overlay - takes up 3 columns -->
+      <div class="lg:col-span-3 relative">
+        <div class="relative bg-gray-900 rounded-2xl overflow-hidden min-h-96">
+          <video id="video" playsinline muted class="w-full h-full object-cover"></video>
+          <canvas id="overlay" class="absolute inset-0 w-full h-full"></canvas>
+          <div id="instructionOverlay" class="absolute inset-0 flex items-center justify-center bg-black bg-opacity-60 text-white text-2xl font-bold z-20">
+              Lift your legs alternately to complete the exercise
+          </div>
+
+        </div>
+        <!-- Start button -->
+        <div class="flex justify-center gap-4 mt-4">
+          <button id="startBtn" class="btn btn-primary px-8 py-3">▶ Start Exercise</button>
+            <button id="nextBtn" class="btn btn-secondary px-8 py-3">⏭ Next</button>
+        </div>
+      </div>
+
+      <!-- Right-side HUD -->
+      <aside class="space-y-4">
+        <div class="card">
+          <div class="text-sm text-gray-400">Reps Remaining</div>
+          <div id="repBig" class="text-3xl font-bold">5</div>
+        </div>
+        
+        <div class="card">
+          <div class="text-sm text-gray-400">Status</div>
+          <div id="status" class="text-sm">Ready. Click Start when you are set.</div>
+        </div>
+        
+        <div class="card">
+          <div class="text-sm text-gray-400">Live Feedback</div>
+          <div id="liveFeedback" class="live-feedback-container text-sm">Show your full body to start</div>
+        </div>
+        
+        <div class="card">
+          <div class="text-sm text-gray-400">Exercise Progress</div>
+          <div id="exerciseInfo" class="text-sm">Leg Raises | 0/5 completed</div>
+        </div>
+
+        <div class="card">
+          <div class="grid grid-cols-3 gap-4">
+            <div class="text-center">
+              <div class="text-xs text-gray-400">Stars</div>
+              <div class="text-lg font-semibold" id="stars">0</div>
+            </div>
+            <div class="text-center">
+              <div class="text-xs text-gray-400">Streak</div>
+              <div class="text-lg font-semibold" id="streak">0</div>
+            </div>
+            <div class="text-center">
+              <div class="text-xs text-gray-400">Score</div>
+              <div class="text-lg font-semibold" id="score">0</div>
+            </div>
+          </div>
+        </div>
+
+        <div id="mascot" class="card mascot-card">
+          <div class="mascot-emoji">🤖</div>
+          <div class="mascot-label">AI Coach</div>
+        </div>
+        
+        <div id="coachBox" class="toast" style="display:none;"></div>
+      </aside>
+    </main>
+
+    <footer class="p-6 border-t border-gray-700 mt-8 text-center text-gray-400">
+      <div class="text-sm">Lift your legs alternately to complete the exercise</div>
+    </footer>
+  </div>
+
+  <script>
+    // ===== LEG RAISES EXERCISE LOGIC =====
+    
+    // DOM Elements
+    const video = document.getElementById('video');
+    const canvas = document.getElementById('overlay');
+    const ctx = canvas.getContext('2d');
+    const startBtn = document.getElementById('startBtn');
+    const scoreEl = document.getElementById('score');
+    const starsEl = document.getElementById('stars');
+    const streakEl = document.getElementById('streak');
+    const mascot = document.getElementById('mascot');
+    const statusEl = document.getElementById('status');
+    const exerciseInfoEl = document.getElementById('exerciseInfo');
+    const repBigEl = document.getElementById('repBig');
+    const coachBoxEl = document.getElementById('coachBox');
+    const liveFeedbackEl = document.getElementById('liveFeedback');
+
+    // State Variables
+    let running = false;
+    let pose = null;
+    let latestLm = null;
+    let score = 0;
+    let streak = 0;
+    let starCount = 0;
+    let repCount = 0;
+    const totalReps = 5;
+    let lastRepTime = 0;
+    let legRaiseState = {
+      leftLegRaised: false,
+      rightLegRaised: false,
+      lastLeftRaise: 0,
+      lastRightRaise: 0
+    };
+
+    // Settings
+    const VIS_THRESH = 0.25;
+    const LEG_RAISE_THRESHOLD = 0.08; // Hip to knee distance threshold
+
+    // Utility Functions
+    const status = msg => { if (statusEl) statusEl.textContent = msg || ''; };
+    const coach = msg => { 
+      if (coachBoxEl) {
+        coachBoxEl.textContent = msg || '';
+        coachBoxEl.style.display = msg ? 'block' : 'none';
+      }
+    };
+    const liveFeedback = (msg, type = 'normal') => {
+      if (liveFeedbackEl) {
+        liveFeedbackEl.textContent = msg || '';
+        liveFeedbackEl.className = `live-feedback-container ${type}`;
+      }
+    };
+
+    function bopMascot() {
+      if (!mascot) return;
+      mascot.style.transition = 'transform 120ms ease';
+      mascot.style.transform = 'scale(1.06)';
+      setTimeout(() => mascot.style.transform = 'scale(1)', 120);
+    }
+
+    // Audio
+    let audioCtx = null;
+    const initAudio = () => { if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)(); };
+    function playDing() {
+      if (!audioCtx) return;
+      const o = audioCtx.createOscillator(), g = audioCtx.createGain();
+      o.type = 'sine'; o.frequency.value = 880; o.connect(g); g.connect(audioCtx.destination);
+      const t = audioCtx.currentTime;
+      g.gain.setValueAtTime(0, t); g.gain.linearRampToValueAtTime(0.6, t + 0.01); g.gain.exponentialRampToValueAtTime(0.0001, t + 0.25);
+      o.start(t); o.stop(t + 0.26);
+    }
+
+    // Canvas Functions
+    function setCanvasSize() {
+      const targetW = video.videoWidth || 640;
+      const targetH = video.videoHeight || 480;
+      canvas.width = targetW;
+      canvas.height = targetH;
+    }
+
+    function drawCameraFrame() {
+      if (video.readyState >= 2) {
+        ctx.save(); ctx.scale(-1, 1);
+        ctx.drawImage(video, -canvas.width, 0, canvas.width, canvas.height);
+        ctx.restore();
+      } else {
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+      }
+    }
+
+    // Pose Detection Functions
+    const visOK = p => !!p && (p.visibility === undefined || p.visibility >= VIS_THRESH);
+    function toPix(p) { return { x: (1 - p.x) * canvas.width, y: p.y * canvas.height, c: (p.visibility ?? 1) }; }
+
+    function fullBodyVisible(lm) {
+      return visOK(lm?.[23]) && visOK(lm?.[24]) &&  // hips
+             visOK(lm?.[25]) && visOK(lm?.[26]) &&  // knees
+             visOK(lm?.[27]) && visOK(lm?.[28]);    // ankles
+    }
+
+    function isLegRaised(hip, knee, threshold = LEG_RAISE_THRESHOLD) {
+      if (!visOK(hip) || !visOK(knee)) return false;
+      return (hip.y - knee.y) > threshold;
+    }
+
+    // Exercise Logic
+    function checkLegRaises(lm) {
+      if (!lm || !fullBodyVisible(lm)) {
+        liveFeedback("Show your full body (hips, knees, ankles)", "warning");
+        return;
+      }
+
+      const leftHip = lm[23];
+      const rightHip = lm[24];
+      const leftKnee = lm[25];
+      const rightKnee = lm[26];
+      const now = performance.now();
+
+      const leftRaised = isLegRaised(leftHip, leftKnee);
+      const rightRaised = isLegRaised(rightHip, rightKnee);
+
+      // Check for new leg raises
+      if (leftRaised && !legRaiseState.leftLegRaised && now - legRaiseState.lastLeftRaise > 1000) {
+        legRaiseState.leftLegRaised = true;
+        legRaiseState.lastLeftRaise = now;
+        completedRep('left');
+      } else if (!leftRaised) {
+        legRaiseState.leftLegRaised = false;
+      }
+
+      if (rightRaised && !legRaiseState.rightLegRaised && now - legRaiseState.lastRightRaise > 1000) {
+        legRaiseState.rightLegRaised = true;
+        legRaiseState.lastRightRaise = now;
+        completedRep('right');
+      } else if (!rightRaised) {
+        legRaiseState.rightLegRaised = false;
+      }
+
+      // Provide feedback
+      if (leftRaised || rightRaised) {
+        const leg = leftRaised ? 'left' : 'right';
+        liveFeedback(`Good ${leg} leg raise! Hold it!`, "success");
+      } else {
+        liveFeedback("Lift one leg up to your chest", "normal");
+      }
+
+      // Draw visual feedback
+      drawLegRaiseTargets(lm);
+    }
+
+    function completedRep(leg) {
+      const now = performance.now();
+      if (now - lastRepTime < 500) return; // Debounce
+      
+      lastRepTime = now;
+      repCount++;
+      score += 10;
+      streak++;
+      starCount++;
+      
+      playDing();
+      bopMascot();
+      
+      coach(`Great ${leg} leg raise! ${totalReps - repCount} more to go!`);
+      
+      updateUI();
+      
+      if (repCount >= totalReps) {
+        setTimeout(() => {
+          status("Exercise Complete! Great job!");
+          coach("🎉 Excellent work! You've completed all leg raises!");
+          liveFeedback("Exercise completed successfully!", "success");
+
+           // ✅ Redirect after 3 seconds
+    setTimeout(() => {
+      window.location.href = "wall_pushups.html";  // change this to your next exercise file
+    }, 3000);
+
+        }, 500);
+      }
+    }
+
+    function drawLegRaiseTargets(lm) {
+      const leftHip = lm[23];
+      const rightHip = lm[24];
+      const leftKnee = lm[25];
+      const rightKnee = lm[26];
+
+      if (!visOK(leftHip) || !visOK(rightHip)) return;
+
+      const leftHipPix = toPix(leftHip);
+      const rightHipPix = toPix(rightHip);
+      
+      // Draw hip markers
+      ctx.save();
+      ctx.fillStyle = '#67e8f9';
+      ctx.shadowColor = '#67e8f9';
+      ctx.shadowBlur = 10;
+      
+      ctx.beginPath();
+      ctx.arc(leftHipPix.x, leftHipPix.y, 8, 0, Math.PI * 2);
+      ctx.fill();
+      
+      ctx.beginPath();
+      ctx.arc(rightHipPix.x, rightHipPix.y, 8, 0, Math.PI * 2);
+      ctx.fill();
+      
+      // Draw knee markers with raised indication
+      if (visOK(leftKnee)) {
+        const leftKneePix = toPix(leftKnee);
+        const leftRaised = isLegRaised(leftHip, leftKnee);
+        ctx.fillStyle = leftRaised ? '#4ade80' : '#ef4444';
+        ctx.beginPath();
+        ctx.arc(leftKneePix.x, leftKneePix.y, 6, 0, Math.PI * 2);
+        ctx.fill();
+      }
+      
+      if (visOK(rightKnee)) {
+        const rightKneePix = toPix(rightKnee);
+        const rightRaised = isLegRaised(rightHip, rightKnee);
+        ctx.fillStyle = rightRaised ? '#4ade80' : '#ef4444';
+        ctx.beginPath();
+        ctx.arc(rightKneePix.x, rightKneePix.y, 6, 0, Math.PI * 2);
+        ctx.fill();
+      }
+      
+      ctx.restore();
+    }
+
+    function updateUI() {
+      const remaining = Math.max(0, totalReps - repCount);
+      if (repBigEl) repBigEl.textContent = String(remaining);
+      if (scoreEl) scoreEl.textContent = score;
+      if (streakEl) streakEl.textContent = streak;
+      if (starsEl) starsEl.textContent = starCount;
+      if (exerciseInfoEl) exerciseInfoEl.textContent = `Leg Raises | ${repCount}/${totalReps} completed`;
+    }
+
+    // Main Render Loop
+    function renderLoop() {
+      drawCameraFrame();
+      
+      if (latestLm && running) {
+        checkLegRaises(latestLm);
+      }
+      
+      requestAnimationFrame(renderLoop);
+    }
+
+    // Camera Setup
+    async function openCameraWithFallbacks() {
+      if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) 
+        throw new Error('getUserMedia not supported');
+      
+      const tries = [
+        { video: { facingMode: { ideal: 'user' }, width: { ideal: 1280 }, height: { ideal: 720 } }, audio: false },
+        { video: { facingMode: 'user' }, audio: false },
+        { video: true, audio: false },
+      ];
+      
+      let lastErr;
+      for (const c of tries) {
+        try { return await navigator.mediaDevices.getUserMedia(c); } 
+        catch (e) { lastErr = e; }
+      }
+      throw lastErr || new Error('Unable to open camera');
+    }
+
+    // Main Start Function
+    async function start() {
+      if (running) return;
+      running = true;
+      
+      try {
+        initAudio();
+        status('Requesting camera...');
+        
+        video.setAttribute('playsinline', '');
+        video.setAttribute('autoplay', '');
+        video.muted = true;
+        
+        const stream = await openCameraWithFallbacks();
+        video.srcObject = stream;
+        
+        await new Promise(res => {
+          if (video.readyState >= 1) return res();
+          video.addEventListener('loadedmetadata', res, { once: true });
+        });
+        
+        await video.play();
+        setCanvasSize();
+        window.addEventListener('resize', setCanvasSize);
+        
+        renderLoop();
+        status('Camera ready - Start lifting your legs!');
+        coach('Show your full body and start lifting your legs alternately');
+        
+        // Initialize MediaPipe Pose
+        if (!window.Pose) {
+          status('ERROR: MediaPipe Pose not loaded');
+          return;
+        }
+        
+        const PoseCtor = window.Pose.Pose || window.Pose;
+        pose = new PoseCtor({ 
+          locateFile: f => `https://cdn.jsdelivr.net/npm/@mediapipe/pose/${f}` 
+        });
+        
+        pose.setOptions({
+          modelComplexity: 1,
+          smoothLandmarks: true,
+          minDetectionConfidence: 0.5,
+          minTrackingConfidence: 0.5
+        });
+        
+        pose.onResults(({ poseLandmarks }) => { 
+          latestLm = poseLandmarks || null; 
+        });
+        
+        if (typeof Camera === 'function') {
+          const cam = new Camera(video, { 
+            onFrame: async () => { await pose.send({ image: video }); },
+            width: canvas.width, 
+            height: canvas.height 
+          });
+          cam.start();
+        } else {
+          (async function loop() { 
+            await pose.send({ image: video }); 
+            requestAnimationFrame(loop); 
+          })();
+        }
+        
+        status('Exercise started!');
+        
+      } catch (e) {
+        console.error('Camera initialization failed:', e);
+        let errorMsg = 'Camera Error: ';
+        if (e.name === 'NotAllowedError') {
+          errorMsg += 'Camera permission denied. Please allow camera access.';
+        } else if (e.name === 'NotFoundError') {
+          errorMsg += 'No camera found. Please connect a camera.';
+        } else {
+          errorMsg += e?.message || e;
+        }
+        status(errorMsg);
+        running = false;
+      }
+    }
+
+    // Event Listeners
+    if (startBtn) {
+      startBtn.addEventListener('click', start);
+    }
+
+    // Instruction overlay disappears after 2s
+setTimeout(() => {
+  const overlay = document.getElementById("instructionOverlay");
+  if (overlay) overlay.classList.add("hidden");
+}, 4000);
+
+// Next button logic
+const nextBtn = document.getElementById("nextBtn");
+if (nextBtn) {
+  nextBtn.addEventListener("click", () => {
+    window.location.href = "wall_pushups.html"; // ✅ Change to your next exercise page
+  });
+}
+
+    
+    // Initialize
+    updateUI();
+    status('Ready. Click Start when you are set.');
+
+    
+  </script>
+</body>
+</html>

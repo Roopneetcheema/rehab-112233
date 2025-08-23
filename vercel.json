@@ -1,0 +1,58 @@
+{
+  "version": 2,
+  "builds": [
+    {
+      "src": "public/**/*",
+      "use": "@vercel/static"
+    }
+  ],
+  "routes": [
+    {
+      "src": "/dashboard.html",
+      "dest": "/public/dashboard.html"
+    },
+    {
+      "src": "/level1.html",
+      "dest": "/public/level1.html"
+    },
+    {
+      "src": "/level2.html", 
+      "dest": "/public/level2.html"
+    },
+    {
+      "src": "/flappy.html",
+      "dest": "/public/flappy.html"
+    },
+    {
+      "src": "/fruit.html",
+      "dest": "/public/fruit.html"
+    },
+    {
+      "src": "/mole.html",
+      "dest": "/public/mole.html"
+    },
+    {
+      "src": "/feedback.html",
+      "dest": "/public/feedback.html"
+    },
+    {
+      "src": "/style.css",
+      "dest": "/public/style.css"
+    },
+    {
+      "src": "/(.*\\.(js|css|png|jpg|jpeg|gif|svg|mp3|wav|pdf|ico))",
+      "dest": "/public/$1"
+    },
+    {
+      "src": "/",
+      "dest": "/public/dashboard.html"
+    },
+    {
+      "src": "/.*",
+      "dest": "/public/dashboard.html"
+    }
+  ],
+  "functions": {},
+  "cleanUrls": true,
+  "trailingSlash": false
+}

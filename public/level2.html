@@ -1,0 +1,158 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Rehabify – Level 2</title>
+
+  <!-- Your app styles -->
+  <link rel="stylesheet" href="style.css" />
+
+  <!-- Favicon -->
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>💪</text></svg>" />
+
+  <!-- MediaPipe (camera helper + pose) -->
+  <script src="https://cdn.jsdelivr.net/npm/@mediapipe/camera_utils/camera_utils.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@mediapipe/pose/pose.js"></script>
+</head>
+
+<body class="min-h-screen bg-gradient-to-br from-primary to-secondary text-text">
+  <!-- Mobile Navigation -->
+  <button class="mobile-nav-toggle" id="mobileNavToggle">
+    <span></span>
+    <span></span>
+    <span></span>
+  </button>
+  
+  <nav class="mobile-nav" id="mobileNav">
+    <a href="dashboard.html">🏠 Home</a>
+    <a href="level1.html">🏃 Level 1</a>
+    <a href="level2.html">💪 Level 2</a>
+    <a href="flappy.html">🐦 Flappy Game</a>
+    <a href="fruit.html">🍎 Fruit Game</a>
+    <a href="mole.html">🐭 Mole Game</a>
+    <a href="feedback.html">📊 Feedback</a>
+  </nav>
+  
+  <div class="animate-fade-in max-w-4xl mx-auto p-4">
+
+    <!-- Header -->
+    <header class="flex justify-between items-start p-6 border-b border-gray-700 mb-6">
+      <div class="flex flex-col">
+        <h1 class="text-4xl font-bold mb-2">🏃 Rehabify</h1>
+        <div class="text-lg text-gray-300">Level 2 • Lower Body</div>
+      </div>
+      <div class="text-right">
+        <span id="levelTag" class="px-3 py-1 bg-gray-800 rounded-full text-sm level-tag">• Level 2</span>
+        <div class="text-xs text-gray-400 mt-1">Press Start to begin Level 2</div>
+      </div>
+    </header>
+
+    <main class="grid grid-cols-1 lg:grid-cols-4 gap-6">
+      <!-- Camera + canvas -->
+      <div class="lg:col-span-3 relative">
+        <div class="relative bg-gray-900 rounded-2xl overflow-hidden min-h-96">
+          <video id="video" playsinline muted class="w-full h-full object-cover"></video>
+          <canvas id="overlay" class="absolute inset-0 w-full h-full"></canvas>
+        </div>
+
+        <!-- Controls -->
+        <div class="flex justify-center gap-4 mt-4">
+          <button id="startBtn" class="btn btn-primary px-8 py-3">▶ Start</button>
+          <button id="nextBtn" class="btn btn-secondary px-8 py-3">Next ⏭</button>
+        </div>
+      </div>
+
+      <!-- HUD -->
+      <aside class="space-y-4">
+        <div class="card">
+          <div class="text-sm text-gray-400">Reps Left</div>
+          <div id="repBig" class="text-3xl font-bold">0</div>
+        </div>
+
+        <div class="card">
+          <div class="text-sm text-gray-400">Status</div>
+          <div id="status" class="text-sm">Ready. Click Start when you are set.</div>
+        </div>
+
+        <div class="card">
+          <div class="text-sm text-gray-400">Live Feedback</div>
+          <div id="liveFeedback" class="live-feedback-container text-sm">
+            Move into position to start
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="text-sm text-gray-400">Exercise</div>
+          <div id="exerciseInfo" class="text-sm">— | Reps 0/0</div>
+        </div>
+
+        <div class="card">
+          <div class="grid grid-cols-3 gap-4">
+            <div class="text-center">
+              <div class="text-xs text-gray-400">Stars</div>
+              <div class="text-lg font-semibold" id="stars">0</div>
+            </div>
+            <div class="text-center">
+              <div class="text-xs text-gray-400">Streak</div>
+              <div class="text-lg font-semibold" id="streak">0</div>
+            </div>
+            <div class="text-center">
+              <div class="text-xs text-gray-400">Score</div>
+              <div class="text-lg font-semibold" id="score">0</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- No mascot in Level 2 -->
+        <div id="coachBox" class="toast" style="display:none;"></div>
+      </aside>
+    </main>
+
+    <footer class="p-6 border-t border-gray-700 mt-8 text-center text-gray-400">
+      <div class="text-sm">Sequence: Mini Squats → Marching in Place → Leg Raises → Final Star</div>
+    </footer>
+  </div>
+
+  <!-- Exercise modules present in Level 2 -->
+  <script src="mini_squats.js"></script>
+  <script src="marching_in_place.js"></script>
+
+  <!-- Live feedback (if you use it) -->
+  <script src="live-feedback.js"></script>
+
+  <!-- Level 2 logic (contains Mini Squats + Marching + Leg Raises + Final Star + redirect to feedback?level=2) -->
+  <script src="script_level2.js"></script>
+  
+  <!-- Mobile Navigation Script -->
+  <script>
+    document.addEventListener('DOMContentLoaded', function() {
+      const mobileNavToggle = document.getElementById('mobileNavToggle');
+      const mobileNav = document.getElementById('mobileNav');
+      
+      if (mobileNavToggle && mobileNav) {
+        mobileNavToggle.addEventListener('click', function() {
+          mobileNavToggle.classList.toggle('active');
+          mobileNav.classList.toggle('active');
+        });
+        
+        // Close nav when clicking on a link
+        mobileNav.addEventListener('click', function(e) {
+          if (e.target.tagName === 'A') {
+            mobileNavToggle.classList.remove('active');
+            mobileNav.classList.remove('active');
+          }
+        });
+        
+        // Close nav when clicking outside
+        document.addEventListener('click', function(e) {
+          if (!mobileNav.contains(e.target) && !mobileNavToggle.contains(e.target)) {
+            mobileNavToggle.classList.remove('active');
+            mobileNav.classList.remove('active');
+          }
+        });
+      }
+    });
+  </script>
+</body>
+</html>

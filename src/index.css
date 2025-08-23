@@ -1,0 +1,38 @@
+@import "tailwindcss";
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600&family=Montserrat:wght@700&display=swap');
+
+@layer base {
+  .font-logo {
+    font-family: "Montserrat", sans-serif;
+  }
+  .font-body {
+    font-family: "Inter", sans-serif;
+  }
+}
+@font-face {
+  font-family: 'MyFont';
+  src: url('./assets/font.ttf') format('truetype');
+  font-weight: normal;
+  font-style: normal;
+}
+
+/* 🔥 Add this at the bottom of index.css or App.css */
+.nav-gradient {
+  background: linear-gradient(-45deg, #000000, #1a6532, #2f855a, #000000);
+  background-size: 400% 400%;
+  animation: navGradientShift 5s ease infinite;
+}
+
+@keyframes navGradientShift {
+  0% {
+    background-position: 0% 50%;
+  }
+  50% {
+    background-position: 100% 50%;
+  }
+  100% {
+    background-position: 0% 50%;
+  }
+}
+
+
