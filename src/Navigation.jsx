@@ -1,10 +1,11 @@
-import React from 'react';
-import { Home, Gamepad2, Target, BarChart3, Users } from 'lucide-react';
+import React, { useState } from 'react';
+import { Home, Gamepad2, BarChart3, Users, Menu } from 'lucide-react';
 
 export default function Navigation({ currentView, setCurrentView }) {
+  const [mobileOpen, setMobileOpen] = useState(false);
+
   const navItems = [
-    { id: 'dashboard', label: 'Dashboard', icon: Home, glow: ' from-[#d6fa61]/80 to-[#85c8ff]/80' },
-    //{ id: 'exercises', label: 'Exercises', icon: Target, glow: 'from-[#ff9cb3]/80 to-[#d6fa61]/80' },
+    { id: 'dashboard', label: 'Dashboard', icon: Home, glow: 'from-[#d6fa61]/80 to-[#85c8ff]/80' },
     { id: 'challenges', label: 'Mini games', icon: Gamepad2, glow: 'from-[#85c8ff]/80 to-[#ff9cb3]/80' },
     { id: 'progress', label: 'Progress', icon: BarChart3, glow: 'from-[#d6fa61]/80 to-[#85c8ff]/80' },
     { id: 'community', label: 'Community', icon: Users, glow: 'from-[#ff9cb3]/80 to-[#d6fa61]/80' },
@@ -17,8 +18,8 @@ export default function Navigation({ currentView, setCurrentView }) {
       <div className="absolute inset-0 bg-gradient-to-b from-black via-gray-900 to-gray-800"></div>
       <div className="absolute inset-0 bg-black/50"></div>
 
-      {/* Sidebar content */}
-      <div className="relative p-4 space-y-2">
+      {/* Desktop Sidebar */}
+      <div className="hidden md:block relative p-4 space-y-2">
         {navItems.map((item) => {
           const Icon = item.icon;
           const isActive = currentView === item.id;
@@ -33,9 +34,10 @@ export default function Navigation({ currentView, setCurrentView }) {
                   : 'text-gray-400 hover:text-white hover:bg-gray-800/60'
               }`}
             >
-              {/* Glow ring effect on active */}
               {isActive && (
-                <span className={`absolute -inset-[1px] rounded-lg blur-md bg-gradient-to-r ${item.glow} opacity-70`} />
+                <span
+                  className={`absolute -inset-[1px] rounded-lg blur-md bg-gradient-to-r ${item.glow} opacity-70`}
+                />
               )}
 
               <div className="relative flex items-center space-x-3 z-10">
@@ -49,6 +51,40 @@ export default function Navigation({ currentView, setCurrentView }) {
             </button>
           );
         })}
+      </div>
+
+      {/* Mobile Dropdown */}
+      <div className="md:hidden relative p-4">
+        <button
+          onClick={() => setMobileOpen(!mobileOpen)}
+          className="flex items-center justify-between w-full px-4 py-3 rounded-lg bg-gray-800/70 text-white font-medium"
+        >
+          <span>
+            {navItems.find((item) => item.id === currentView)?.label || 'Menu'}
+          </span>
+          <Menu className="w-5 h-5" />
+        </button>
+
+        {mobileOpen && (
+          <div className="mt-2 bg-gray-900/90 rounded-lg shadow-lg border border-gray-700">
+            {navItems.map((item) => (
+              <button
+                key={item.id}
+                onClick={() => {
+                  setCurrentView(item.id);
+                  setMobileOpen(false);
+                }}
+                className={`w-full text-left px-4 py-2 rounded-md block ${
+                  currentView === item.id
+                    ? 'bg-gradient-to-r from-[#d6fa61]/80 to-[#85c8ff]/80 text-black'
+                    : 'text-gray-300 hover:bg-gray-700 hover:text-white'
+                }`}
+              >
+                {item.label}
+              </button>
+            ))}
+          </div>
+        )}
       </div>
     </nav>
   );
