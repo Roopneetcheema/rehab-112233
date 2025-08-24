@@ -4,172 +4,160 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Stomp the Mole</title>
-    <style>
-      * {
-        margin: 0;
-        padding: 0;
-        box-sizing: border-box;
-        font-family: Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
-      }
-      body {
-        min-height: 100vh;
-        overflow: hidden;
-        background: linear-gradient(135deg, #0f0f23, #1a1a2e);
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        color: #fff;
-        
-      }
-      .game-container {
-        position: relative;
-        width: 80vw;
-        height: 80vh;
-        max-width: 1000px;
-        max-height: 720px;
-       border: 1px solid rgb(214, 250, 97,0.5);
-        border-radius: 20px;
-        overflow: hidden;
-        background: #1b2337;
-  box-shadow: 0 0 15px #3f452b, 
-              0 0 15px #d6fa61, 
-              0 0 15px #d6fa61;
-      }
-      
-      @media (max-width: 768px) {
-        .game-container {
-          width: 95vw !important;
-          height: 60vh !important;
-        }
-        
-        #hud {
-          position: fixed !important;
-          top: 10px !important;
-          left: 5px !important;
-          right: 5px !important;
-          width: auto !important;
-          padding: 12px !important;
-        }
-      }
-      #videoElement {
-        width: 100%;
-        height: 100%;
-        object-fit: cover;
-        transform: scaleX(-1);
-      }
-      #gameCanvas {
-        position: absolute;
-        inset: 0;
-        pointer-events: none;
-      }
-      #hud {
-        /* //green - #d6fa61   pink  - #ff9cb3   blue - #85c8ff */
-        position: absolute;
-        top: 16px;
-        left: 16px;
-        z-index: 10;
-        background: rgba(0, 0, 0, 0.6);
-        padding: 12px 16px;
-        border-radius: 12px;
-        border: 2px solid  #85c8ff ;
-        font-weight: 600;
-         box-shadow: 0 0 15px #2f2a63, 
-              0 0 15px #0f1248, 
-              0 0 15px #61b3fa;
-      }
-      #hud .val {
-        color:  #85c8ff ;
-        font-weight: 800;
-      }  #gameOver {
-    position: absolute;
-    inset: 0;
-    display: none;
-    align-items: center;
-    justify-content: center;
-    z-index: 20;
-    background: rgba(0, 0, 0, 0.9);
-  }
+   <style>
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  font-family: Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+}
 
-  /* Card */
-  #gameOver {
-    position: absolute;
-    inset: 0;
-    display: none;
-    align-items: center;
-    justify-content: center;
-    z-index: 20;
-    background: rgba(0, 0, 0, 0.92);
-  }
+body {
+  min-height: 100vh;
+  background: linear-gradient(135deg, #0f0f23 0%, #1a1a2e 100%);
+  color: white;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+}
 
-  /* Card */
+/* BUTTONS */
+.btn-primary, .btn-primary-b {
+  padding: clamp(8px, 2.5vw, 12px) clamp(14px, 4vw, 20px);
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  font-weight: 600;
+  font-size: clamp(14px, 4vw, 16px);
+  background: linear-gradient(90deg, #85c8ff, #d6fa61);
+  color: black;
+  transition: transform 0.2s ease, opacity 0.2s ease;
+}
+.btn-primary:hover, .btn-primary-b:hover {
+  opacity: 0.85;
+  transform: scale(1.03);
+}
+.btn-secondary {
+  background: #85c8ff;
+  color: black;
+}
+
+/* GAME CONTAINER */
+.game-container {
+  position: relative;
+  width: 90vw;
+  height: 70vh;
+  max-width: 1000px;
+  max-height: 750px;
+  margin: auto;
+  border: 1px solid rgba(214, 250, 97, 0.5);
+  border-radius: 20px;
+  overflow: hidden;
+  background: #1b2337;
+  box-shadow: 0 0 15px #3f452b,
+              0 0 15px #d6fa61,
+              0 0 15px rgba(214, 250, 97, 0.8);
+}
+#videoElement,
+#gameCanvas {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+#gameCanvas {
+  position: absolute;
+  top: 0;
+  left: 0;
+  pointer-events: none;
+}
+
+/* HUD */
+#hud {
+  position: absolute;
+  top: 16px;
+  left: 16px;
+  z-index: 10;
+  background: rgba(0, 0, 0, 0.6);
+  padding: clamp(6px, 1.5vw, 12px) clamp(8px, 2vw, 16px);
+  border-radius: 12px;
+  border: 2px solid #85c8ff;
+  font-weight: 600;
+  box-shadow: 0 0 15px #2f2a63, 0 0 15px #0f1248, 0 0 15px #61b3fa;
+  font-size: clamp(12px, 2vw, 16px);
+}
+#hud .val {
+  font-weight: 800;
+  font-size: clamp(14px, 2.5vw, 18px);
+}
+
+/* HAND CURSOR */
+.handCursor {
+  position: absolute;
+  width: 44px;
+  height: 44px;
+  background: rgba(169, 250, 48, 0.4);
+  border-radius: 50%;
+  border: 3px solid rgba(150, 255, 102, 0.8);
+  box-shadow: 0 0 20px rgba(16, 185, 129, 0.4),
+              inset 0 0 20px rgba(16, 185, 129, 0.2);
+  pointer-events: none;
+  z-index: 30;
+  transition: transform 100ms, opacity 150ms;
+  opacity: 0;
+  transform: translate(-50%, -50%);
+}
+
+/* GAME OVER SCREEN */
+#gameOverScreen {
+  position: fixed;
+  top: 0; left: 0;
+  width: 100%; height: 100%;
+  background: rgba(15, 15, 35, 0.9);
+  display: none;
+  align-items: center;
+  justify-content: center;
+  z-index: 50;
+}
+#gameOverCard {
+  background: #1f2937;
+  border: 2px solid #85c8ff;
+  border-radius: 16px;
+  padding: clamp(16px, 4vw, 28px);
+  text-align: center;
+  width: min(92vw, 440px);
+  box-shadow: 0 0 25px rgba(133, 200, 255, 0.5);
+}
+#gameOverCard h2 {
+  font-size: clamp(20px, 5vw, 28px);
+  margin-bottom: 1rem;
+}
+#gameOverCard .new-high {
+  font-size: clamp(16px, 3.5vw, 20px);
+  color: #d6fa61;
+  margin-bottom: 1rem;
+}
+#finalStats {
+  font-size: clamp(13px, 3vw, 15px);
+  line-height: 1.6;
+  margin-bottom: 1.5rem;
+}
+
+/* SMALL SCREENS */
+@media (max-width: 500px) {
+  .game-container {
+    height: 65vh !important;
+  }
+  #hud {
+    top: 8px;
+    left: 8px;
+  }
   #gameOverCard {
-    background: #1f2937; /* dark grey */
-    border: 2px solid #85c8ff; /* blue highlight */
-    border-radius: 16px;
-    padding: 28px;
-    text-align: center;
-    width: min(92vw, 440px);
-    box-shadow: 0 0 25px rgba(133, 200, 255, 0.5);
+    width: 95vw;
   }
+}
+</style>
 
-  /* Title */
-  #gameOverCard h2 {
-    font-size: 28px;
-    font-weight: bold;
-    color: #fafafa; /* blue */
-    margin-bottom: 14px;
-    
-  }
-
-  /* New high score */
-  #gameOverCard .new-high {
-    color: #ebe6e7; /* pink */
-    font-weight: 700;
-    font-size: 20px;
-    margin-bottom: 12px;
-   
-  }
-
-  /* Stats */
-  #finalStats {
-    color: #d1d5db;
-    margin: 10px 0 18px;
-    font-size: 15px;
-    line-height: 1.6;
-  }
-
-  /* Buttons */
-  .btn-primary {
-    background: linear-gradient(to right, #85c8ff, #d6fa61); /* blue → green */
-    border: none;
-    border-radius: 8px;
-    padding: 12px 20px;
-    font-size: 16px;
-    font-weight: bold;
-    cursor: pointer;
-    color: #000;
-    transition: opacity 0.3s, transform 0.2s;
-    width: 100%;
-    box-shadow: 0 0 10px rgba(133, 200, 255, 0.6);
-  }
-  .btn-primary-b {
-    background: #85c8ff;
-    border: none;
-    border-radius: 8px;
-    padding: 12px 20px;
-    font-size: 16px;
-    font-weight: bold;
-    cursor: pointer;
-    color: #000;
-    transition: opacity 0.3s, transform 0.2s;
-    width: 100%;
-    box-shadow: 0 0 10px rgba(133, 200, 255, 0.6);
-  }
-  .btn-primary:hover {
-    opacity: 0.9;
-    transform: scale(1.02);
-  }
-    </style>
   </head>
   <body>
     <div class="game-container">
