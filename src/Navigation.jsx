@@ -1,4 +1,4 @@
-make it responsive, on mobile view the elements dashboard, mini games etc should come as a drop down import React from 'react';
+import React from 'react';
 import { Home, Gamepad2, Target, BarChart3, Users } from 'lucide-react';
 
 export default function Navigation({ currentView, setCurrentView }) {
